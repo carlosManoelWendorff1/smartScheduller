@@ -1,0 +1,50 @@
+# Uso:
+#   docker compose up -d              -> sobe apenas o banco de desenvolvimento (db)
+#   docker compose --profile test up -d db-test  -> sobe também um banco manual para testes
+#
+# IMPORTANTE: os testes de integração (@Testcontainers) NÃO dependem do serviço
+# "db-test" abaixo. O Testcontainers sobe um Postgres efêmero automaticamente a
+# cada execução de teste, isolado e descartável (ver seção 27 das instruções mestre).
+# O serviço "db-test" aqui existe apenas como conveniência para quem quiser
+# inspecionar/rodar queries manualmente contra um banco com a mesma versão do Postgres
+# usada em produção, fora do ciclo de vida do JUnit.
+
+services:
+  db:
+    image: postgres:16-alpine
+    container_name: smartscheduller-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: smartscheduller
+      POSTGRES_USER: smartscheduller
+      POSTGRES_PASSWORD: smartscheduller
+    ports:
+      - "5432:5432"
+    volumes:
+      - smartscheduller-db-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U smartscheduller -d smartscheduller"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  db-test:
+    image: postgres:16-alpine
+    container_name: smartscheduller-db-test
+    restart: unless-stopped
+    profiles: ["test"]
+    environment:
+      POSTGRES_DB: smartscheduller_test
+      POSTGRES_USER: smartscheduller
+      POSTGRES_PASSWORD: smartscheduller
+    ports:
+      - "5433:5432"
+    healthcheck:
+      test:
+        ["CMD-SHELL", "pg_isready -U smartscheduller -d smartscheduller_test"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+volumes:
+  smartscheduller-db-data:
