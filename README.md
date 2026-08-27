@@ -45,7 +45,7 @@ com.smartscheduller
 2. Rode a aplicação com o profile `local`:
 
    ```bash
-   mvn spring-boot:run -Dspring-boot.run.profiles=local
+   mvn spring-boot:run -D spring-boot.run.profiles=local
    ```
 
    O Flyway aplica `V1__create_tenant_table.sql` automaticamente no boot.
