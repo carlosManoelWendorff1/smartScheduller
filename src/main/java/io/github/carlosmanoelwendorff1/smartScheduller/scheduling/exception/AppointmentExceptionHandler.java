@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import io.github.carlosmanoelwendorff1.smartScheduller.scheduling.controllers.AppointmentController;
+import io.github.carlosmanoelwendorff1.smartScheduller.scheduling.domain.exception.AppointmentConflictException;
 import io.github.carlosmanoelwendorff1.smartScheduller.scheduling.domain.exception.AppointmentNotFoundException;
 
 @RestControllerAdvice(basePackageClasses = AppointmentController.class)
@@ -15,6 +16,11 @@ public class AppointmentExceptionHandler {
     @ExceptionHandler(AppointmentNotFoundException.class)
     public ProblemDetail handleNotFound(AppointmentNotFoundException ex) {
         return ProblemDetail.forStatusAndDetail(HttpStatus.NOT_FOUND, ex.getMessage());
+    }
+
+    @ExceptionHandler(AppointmentConflictException.class)
+    public ProblemDetail handleConflict(AppointmentConflictException ex) {
+        return ProblemDetail.forStatusAndDetail(HttpStatus.CONFLICT, ex.getMessage());
     }
 
     @ExceptionHandler(IllegalArgumentException.class)
