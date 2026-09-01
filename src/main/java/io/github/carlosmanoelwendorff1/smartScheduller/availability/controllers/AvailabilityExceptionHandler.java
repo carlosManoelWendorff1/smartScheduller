@@ -6,8 +6,11 @@ import org.springframework.http.ProblemDetail;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
-@RestControllerAdvice(basePackageClasses = { BusinessHoursController.class,
-        ProfessionalAvailabilityRuleController.class })
+import io.github.carlosmanoelwendorff1.smartScheduller.availability.domain.exception.TenantTimezoneUnavailableException;
+
+@RestControllerAdvice(basePackageClasses = {
+        BusinessHoursController.class, ProfessionalAvailabilityRuleController.class, AvailabilityController.class
+})
 public class AvailabilityExceptionHandler {
 
     @ExceptionHandler(IllegalArgumentException.class)
@@ -15,10 +18,11 @@ public class AvailabilityExceptionHandler {
         return ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST, ex.getMessage());
     }
 
-    /**
-     * professionalId doesn't exist or belongs to a different tenant - composite FK
-     * violation.
-     */
+    @ExceptionHandler(TenantTimezoneUnavailableException.class)
+    public ProblemDetail handleTimezoneUnavailable(TenantTimezoneUnavailableException ex) {
+        return ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST, ex.getMessage());
+    }
+
     @ExceptionHandler(DataIntegrityViolationException.class)
     public ProblemDetail handleDataIntegrityViolation(DataIntegrityViolationException ex) {
         return ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST,
